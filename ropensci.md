@@ -1,39 +1,39 @@
 % The challenge of combining 176 x #otherpeoplesdata to create the Biomass And Allometry Database
 % Daniel Falster, Rich FitzJohn, Remko Duursma, Diego Barneche
 
-We are entereing the era of big data, but for much of science the challenge is not that data are too big (to load, copy or analyse), rather it is that most datasets are small and scattered on hard drives around the planet. The size of these small-data "fragemnts" varies, but they often correspond to the amount of work needed to publish a single scinetific paper. **Big** data sets emerge only when the framents are collected and merged into a single standradised source, with common units and variables names, and a documnetation about the varitey of methods used in the different studies. Combining the small-data fragments into larger - often global -- compilations allows us to address questions at an entirely new level.
+We are entering the era of big data, but for much of science the challenge is not that data are too big (to load, copy or analyse), rather it is that most datasets are small and scattered on hard drives around the planet. The size of these small-data "fragments" varies, but they often correspond to the amount of work needed to publish a single scientific paper. **Big** data sets emerge only when the fragments are collected and merged into a single standardised source, with common units and variables names, and a documentation about the variety of methods used in the different studies. Combining the small-data fragments into larger - often global -- compilations allows us to address questions at an entirely new level.
 
-Collecting and compiling small-data fragments is challenging at both politicial and technical levels. The political challenge is to manage the carrots and sticks needed to promote sharing of data within the scientific community. The polotics of data sharing have been the primary focus for debate over the last 5 years, but now that many journals and funding agencies are requring data to be archived at the time of publication, small-data fragments are appearing at an ever increasing rate. The technical challenge - by contrast - is still very much beginning: **How to trasnform small data into big data, i.e.  harmonise a collection of idependent frgaments, each with its own perculuarities, into a single quality dataset?**
+Collecting and compiling small-data fragments is challenging at both political and technical levels. The political challenge is to manage the carrots and sticks needed to promote sharing of data within the scientific community. The politics of data sharing have been the primary focus for debate over the last 5 years, but now that many journals and funding agencies are requiring data to be archived at the time of publication, small-data fragments are appearing at an ever increasing rate. The technical challenge - by contrast - is still very much beginning: **How to transform small data into big data, i.e.  harmonise a collection of independent fragments, each with its own peculiarities, into a single quality dataset?**
 
-Togetehr with 95 coauthors, we recently published the Biomass And Alloemtry Dataset (BAAD), combining data from 176 different scientific studies into a single unified dataset. We built BAAD for several reasons: i) we needed it for our own work ii) we perceived a strong need within the vegetation modelling community for such a dataset, and iii) because it allowed us to road-test some new methods for compiling datasets.
+Together with 95 co-authors, we recently published the Biomass And Allometry Dataset (BAAD), combining data from 176 different scientific studies into a single unified dataset. We built BAAD for several reasons: i) we needed it for our own work ii) we perceived a strong need within the vegetation modelling community for such a dataset, and iii) because it allowed us to road-test some new methods for compiling datasets.
 
-The purpose of this blog post is to describe the challenges in building BAAD and how we overcome these. The challenges are general and might apply to any merging of small-data fragments. If you're on twitter you may be familiar with the hashtag [#otherpeoplesdata](https://twitter.com/search?q=%23otherpeoplesdata) -- added to tweets venting about the difficultieis of working with /beautiful eccentricities in other peoples data. (We each have our own ways of constructing a datasets and unfortunately the logic is not always apparent to others.) Well, we had to deal with #otherpeoplesdata en masse!
+The purpose of this blog post is to describe the challenges in building BAAD and how we overcome these. The challenges are general and might apply to any merging of small-data fragments. If you're on twitter you may be familiar with the hash-tag [#otherpeoplesdata](https://twitter.com/search?q=%23otherpeoplesdata) -- added to tweets venting about the difficulties of working with /beautiful eccentricities in other peoples data. (We each have our own ways of constructing a datasets and unfortunately the logic is not always apparent to others.) Well, we had to deal with #otherpeoplesdata on mass!
 
-# 1. Script everyhthing
+# 1. Script everything
 
-From the begining of the project, we decided to script eveything. We wanted the entire workflow of trnasforming raw data files into a unified dataset to be completely scripted and able to be reurn at any point.
+From the beginning of the project, we decided to script everything. We wanted the entire work-flow of transforming raw data files into a unified dataset to be completely scripted and able to be rerun at any point.
 
 I've learnt a lot from watching colleagues like [Ian Wright]() compile [large datasets]() from #otherpeoplesdata In Excel. One of the troubles Ian encountered time and time again, was that he would find out sometime down the track that someone had sent him the wrong data, the wrong units, or no longer wanted their data included in the compilation. Each time something like this happened, it would cost Ian a lot of time to modifying his spreadsheet.
 
-When your workflow is scripted, you can make a small change and then rebuild the database in an instant.
+When your work-flow is scripted, you can make a small change and then rebuild the database in an instant.
 
-Another reason for scipting is that it ensures all the modifcations to the data are well documented. This simply isn't possible in excel. Lookign at our code, you can see excatly how we modified the data to arrive at the end product.
+Another reason for scripting is that it ensures all the modifications to the data are well documented. This simply isn't possible in excel. Looking at our code, you can see exactly how we modified the data to arrive at the end product.
 
-So while we call it a database, BAAD does not use common database tools like SQL or Microsoft Access etc. It is a database in the sense that it is an [organized collection of data](http://en.wikipedia.org/wiki/Database). Otehwrise we mainatain the raw inputs and a collection of scripts for producing the harmosnied dataset. Like good software, we are constantlyr ebuilding this output from the source.
+So while we call it a database, BAAD does not use common database tools like SQL or Microsoft Access etc. It is a database in the sense that it is an [organized collection of data](http://en.wikipedia.org/wiki/Database). Otherwise we maintain the raw inputs and a collection of scripts for producing the harmonised dataset. Like good software, we are constantly rebuilding this output from the source.
 
-The only potential cost of continually rebuilding the dataset is that this can take time. Actually, the time taken to make all the trasnformations and combine all 176 studies is pretty minimial - 9.5sec all toegtehr. However, the job of rebuilding the dataset can was made a lot quicker through use of [remake](https://github.com/richfitz/remake)[^remake], one of our new R packages. Essentailly remake cahces built objects (e.g. the tansfromformed dataset for each study) and only rebuilds each of them if either the data or code generating that particuakr dataset has changed. So if I change a single value in one of the dtasets, remake notices that and rebuilds only that file. So after the first longer run, rebuilding the dataset takes in the range of 1-3s.
+The only potential cost of continually rebuilding the dataset is that this can take time. Actually, the time taken to make all the transformations and combine all 176 studies is pretty minimal - 9.5sec all together. However, the job of rebuilding the dataset can was made a lot quicker through use of [remake](https://github.com/richfitz/remake)[^remake], one of our new R packages. Essentially remake caches built objects (e.g. the transformed dataset for each study) and only rebuilds each of them if either the data or code generating that particular dataset has changed. So if I change a single value in one of the datasets, remake notices that and rebuilds only that file. So after the first longer run, rebuilding the dataset takes in the range of 1-3s.
 
 # 2. Use version control (git) to track changes
 
 The BAAD project began in July 2012, in Feb 2013 Rich FitzJohn got involved and introduced us to version control. You can see the structure of our database at that time [here](https://github.com/dfalster/baad/tree/912163bb371e280340dee2bb4cf872a1d7ede81b). We don't know much about what happended prior 13 Feb 2013, but since that day, every single change to the BAAD has been recorded. We know who changed what lines of code or data and when.
 
-Of the various systems for version contorl that are available, we prefer [git](http://en.wikipedia.org/wiki/Git_(software)). Many people have been extolling the virtues of git for managing computer code (e.g. [Chacon 2009](http://git-scm.com/book)), but git is equally good for managing data ([Ram et al 2013](http://doi.org/10.1186/1751-0473-8-7)). Since many readers may not be familar with some of git's vitues, it is worthr epeating them, focussing on current use case of storing data:
+Of the various systems for version control that are available, we prefer [git](http://en.wikipedia.org/wiki/Git_(software)). Many people have been extolling the virtues of git for managing computer code (e.g. [Chacon 2009](http://git-scm.com/book)), but git is equally good for managing data ([Ram et al 2013](http://doi.org/10.1186/1751-0473-8-7)). Since many readers may not be familiar with some of git's virtues, it is worth repeating them, focussing on current use case of storing data:
 
 - fossil history, confidence to delete, streamline, identify errors
-- blame - who editted which line and when
+- blame - who edited which line and when
 - more
 
-# 3. Use code sharing website (github) to collaboriate effectively
+# 3. Use code sharing website (github) to collaborate effectively
 
 Alongside git, we used the code-sharing website [github](www.github.com) to host our git repository. Github facilitates seamless collaboration
 
@@ -52,12 +52,12 @@ Also other features
 We minimised the amount of code by requiring each study to conform to a common format, with separate files for raw data, units of data, meta data, contact details, and citation (see examples in attached code). These files were then processed in a standardised way (Fig.).
 
 
-- list of desriable units and outputs
+- list of desirable units and outputs
 
 
 Funnel
 - unlock dark data
-- define common workflow
+- define common work flow
 - encode everything as data
 - highly scalable and entirely replacebale
 
@@ -68,15 +68,15 @@ Funnel
 	- single point for customised manipulations
 
 
-![Workflow for building the BAAD. Data from each study is processed in the same way, using a standardised set of input files, resulting in a single dataset with a common format.](https://raw.githubusercontent.com/dfalster/baad/3c8ace94a913f4d6c914a244021742ab18a4d639/ms/Figure2.png)
+![Work flow for building the BAAD. Data from each study is processed in the same way, using a standardised set of input files, resulting in a single dataset with a common format.](https://raw.githubusercontent.com/dfalster/baad/3c8ace94a913f4d6c914a244021742ab18a4d639/ms/Figure2.png)
 
 # 5. Do no modify raw data files
 
-Raw data is holy. A back-of-the-envelope calculation suggests the data we are managing would cost about $17 million to collect afresh (in Australian dollars and pay rates) [^Cost]. We decided early on that we would aim to keep the original file sent to us unchaged, as much as possible. In many cases it was necessary to export an excel spreadsheet as a csv file, but beyond that, the file should be beasically as it was porvided. A limited number of actions were allowed on reaw data files, icnluding  [incorporating an updated dataset from a contributor](https://github.com/dfalster/baad/commit/7d10aede58080d83d59fe3be5043829b15f0236b), [modifying line endings](https://github.com/dfalster/baad/commit/5bb9044e7e4b63ad2febca986ebf1e45f24cdd0e)[^line_endings], [removing a string of trailing empty columns](https://github.com/dfalster/baad/commit/ec82e83d1b50f4e6bc2df2a780d2bb1684530652), [correcting spelling mistakes](https://github.com/dfalster/baad/commit/f284744d1e0562d2ec92eea898b7195cc6de1814), [removing special characters causing R to crash](https://github.com/dfalster/baad/commit/d22bc1ee1db3870a7e281de22862eaa1ced4ddd1), [making column names unique](https://github.com/dfalster/baad/commit/4c83c70eb965bfd9c3b7c30f88312e646476836b).
+Raw data is holy. A back-of-the-envelope calculation suggests the data we are managing would cost about $17 million to collect afresh (in Australian dollars and pay rates) [^Cost]. We decided early on that we would aim to keep the original file sent to us unchanged, as much as possible. In many cases it was necessary to export an excel spreadsheet as a csv file, but beyond that, the file should be basically as it was provided. A limited number of actions were allowed on raw data files, including  [incorporating an updated dataset from a contributor](https://github.com/dfalster/baad/commit/7d10aede58080d83d59fe3be5043829b15f0236b), [modifying line endings](https://github.com/dfalster/baad/commit/5bb9044e7e4b63ad2febca986ebf1e45f24cdd0e)[^line_endings], [removing a string of trailing empty columns](https://github.com/dfalster/baad/commit/ec82e83d1b50f4e6bc2df2a780d2bb1684530652), [correcting spelling mistakes](https://github.com/dfalster/baad/commit/f284744d1e0562d2ec92eea898b7195cc6de1814), [removing special characters causing R to crash](https://github.com/dfalster/baad/commit/d22bc1ee1db3870a7e281de22862eaa1ced4ddd1), [making column names unique](https://github.com/dfalster/baad/commit/4c83c70eb965bfd9c3b7c30f88312e646476836b).
 
-The types of operations that were not allowed include data-trasformations and creation of new columns -- these were all hadnled in our pipeline (see point 4.)
+The types of operations that were not allowed include data-transformations and creation of new columns -- these were all handled in our pipeline (see point 4.)
 
-# 6. Encode metadata as data
+# 6. Encode meta-data as data
 
 In the early stages of our project, we encoded a lot of the changes we wanted to make to the data into our R scripts. For example, the code below is from our [first commit](https://github.com/dfalster/baad/blob/912163bb371e280340dee2bb4cf872a1d7ede81b/R/makeCleanDataFiles.R).
 
@@ -99,15 +99,15 @@ In the early stages of our project, we encoded a lot of the changes we wanted to
 	}
 ```
 
-The code shows operations for a single study, where we load raw data, make a new columns, add columns and save the compiled object. The **problem** with this code is that it mixes in a bunch of useful data with our R code. We had not yet identified a common pipeline for processing data. Eventually we moved all this extra data into their own csv files and treated them as we should, as data. This also allowed us to drsatcially reduce the amount of R code by moving each dataset through a common pipeline (see point 4).
+The code shows operations for a single study, where we load raw data, make a new columns, add columns and save the compiled object. The **problem** with this code is that it mixes in a bunch of useful data with our R code. We had not yet identified a common pipeline for processing data. Eventually we moved all this extra data into their own csv files and treated them as we should, as data. This also allowed us to drastically reduce the amount of R code by moving each dataset through a common pipeline (see point 4).
 
-Ina dditon, we sought a stanadrised description of each study, and saved this in a common format.
+In additon, we sought a standardised description of each study, and saved this in a common format.
 
-# 7. Setup automated reporting and screening
+# 7. Set-up automated reporting and screening
 
-Once we had decided to store metdata as data (point 6), and established a common pipeline for processing data (point 4), a lot becomes possible. For example, you can write a standard template for reporting on each study. To do this we used the package [knitr](http://cran.r-project.org/package=knitr), using [this Rmd file](https://github.com/dfalster/baad/blob/841c346d5c90181b47b0757994901fc520f5e4c6/reports/report.Rmd). Each report includes a processed version of the data and metadta, including maps of study site locations and bivariate plots of all varaibles provided in this study, overlayed againt the rest of the data from BAAD. The current set of reprots can be viewed [on our wiki](https://github.com/dfalster/baad/wiki).
+Once we had decided to store meta-data as data (point 6), and established a common pipeline for processing data (point 4), a lot becomes possible. For example, you can write a standard template for reporting on each study. To do this we used the package [knitr](http://cran.r-project.org/package=knitr), using [this Rmd file](https://github.com/dfalster/baad/blob/841c346d5c90181b47b0757994901fc520f5e4c6/reports/report.Rmd). Each report includes a processed version of the data and metadta, including maps of study site locations and bivariate plots of all variables provided in this study, overlayed againt the rest of the data from BAAD. The current set of reports can be viewed [on our wiki](https://github.com/dfalster/baad/wiki).
 
-The generated reprots are useful in tow key ways. First that provdie a nice overview of the data contributedd from any single study. Second, they were invaluble in identifying errors (see point 8 below).
+The generated reports are useful in tow key ways. First that provide a nice overview of the data contributed from any single study. Second, they were invaluable in identifying errors (see point 8 below).
 
 # 8. Establish a formal process for processing each data fragment
 
@@ -135,10 +135,10 @@ Build
 
 - contacted contributors with clear vision (data paper in Ecology)
 	- specifying license
-- make it worthwhile for contributors: coauthor on data paper.
+- make it worthwhile for contributors: co-author on data paper.
 	- tangible but no over the top, not persistent/ongoing
 
-# 10. Automate repitive tasks
+# 10. Automate repetitive tasks
 
 - EmailR
 - emails: automatically fill with relevant details, make it personal and specific
@@ -158,11 +158,11 @@ Biggest challenges
 
 # Openness
 
-BAAD is certainly not the first data compilation in my field, but as far we known, it is the first to be entirely open. By this I mean the entire workflow is open and transparent
+BAAD is certainly not the first data compilation in my field, but as far we known, it is the first to be entirely open. By this I mean the entire work flow is open and transparent
 
 Every other data compilation that exists in my field, has been conducted in the dark, i.e.
 
-does not meet goals of transparancy and reproducibility. Wwo approaches
+does not meet goals of transparency and reproducibility. Wwo approaches
 
 1. Individual researchers cut and pasting Excel.
 2. Large SQL database, few people with access (TRY).
@@ -172,24 +172,24 @@ Problems:
 
 - mistake is made at some point, how to find and reverse?
 - how can users trust database if cannot see how data cleaning and harmonisation
-- how to handle infomration does not readily fit into table?
+- how to handle information does not readily fit into table?
 
 
-We suggest an alternative approach - small-to medium-szed databases should be constantly rebuilt from source, usiong scripts, all modifications are recorded and available, history of changes tracked under version control. All ifnormation in this workflow is encoded as data to maximise furture reuse.
+We suggest an alternative approach - small-to medium-sized databases should be constantly rebuilt from source, using scripts, all modifications are recorded and available, history of changes tracked under version control. All information in this work-flow is encoded as data to maximise future reuse.
 
 
 
-Ideally techniques for harmosniation should be
+Ideally techniques for harmonisation should be
 
-- be entirely transparanet and reproducible, potentially reversible. and
-- achieved with minial amount of work
+- be entirely transparent and reproducible, potentially reversible. and
+- achieved with minimal amount of work
 - scalable
-- open to being superceeded
+- open to being superseded
 - crowd-source
 
 
 # Footnotes
 
-[^remake]: the package `remake` wasoriginally called maker and was introduced on [Nov 19 2014](https://github.com/dfalster/baad/tree/82b0b1c832e9fcfd7c1d1e6cf42f7c8b97e5d323), relatively late in development of BAAD.
-[^Cost]: Let's assume each dataset takes a insgle person 1 year to collect. If that person was paid at $60k p.a., and we add oncosts and costs of field work, the cost of each dataset might be $100k. 175 datasets * $100k per dataset = $17mill.
+[^remake]: the package `remake` was originally called maker and was introduced on [Nov 19 2014](https://github.com/dfalster/baad/tree/82b0b1c832e9fcfd7c1d1e6cf42f7c8b97e5d323), relatively late in development of BAAD.
+[^Cost]: Let's assume each dataset takes a single person 1 year to collect. If that person was paid at $60k p.a., and we add on-costs and costs of field work, the cost of each dataset might be $100k. 175 datasets * $100k per dataset = $17mill.
 [^line_endings]: something ....
