@@ -1,9 +1,9 @@
 % The challenge of combining 176 x #otherpeoplesdata to create the Biomass And Allometry Database
 % Daniel Falster, Rich FitzJohn, Remko Duursma, Diego Barneche
 
-While we are supposedly entering the era of big data, the problem for much of science is that large-scale, global databases must be assembled from a collection of independent and  heterogeneous fragments -- the outputs of many and isolated scientific studies conducted around the globe.
+While we are supposedly entering the era of big data, the problem for much of science is that large-scale, global databases must be assembled from a collection of small independent and  heterogeneous fragments -- the outputs of many and isolated scientific studies conducted around the globe.
 
-Collecting and compiling these fragments is challenging at both political and technical levels. The political challenge is to manage the carrots and sticks needed to promote sharing of data within the scientific community. The politics of data sharing have been the primary focus for debate over the last 5 years, but now that many journals and funding agencies are requiring data to be archived at the time of publication, these data fragments are appearing at an ever increasing rate. But little prograss has been made on the main technical challenge: **How can you combine a collection of independent fragments, each with its own peculiarities, into a single quality database?**
+Collecting and compiling these fragments is challenging at both political and technical levels. The political challenge is to manage the carrots and sticks needed to promote sharing of data within the scientific community. The politics of data sharing have been the primary focus for debate over the last 5 years, but now that many journals and funding agencies are requiring data to be archived at the time of publication, these data fragments are appearing at an ever increasing rate. But little progress has been made on the main technical challenge: **How can you combine a collection of independent fragments, each with its own peculiarities, into a single quality database?**
 
 Together with 95 co-authors, we recently published the Biomass And Allometry Database (BAAD), combining data from 176 different scientific studies into a single unified database. We built BAAD for several reasons: i) we needed it for our own work ii) we perceived a strong need within the vegetation modelling community for such a database and iii) because it allowed us to road-test some new methods for building and maintaining a database [^database].
 
@@ -13,13 +13,9 @@ The approach we took with BAAD is quite different: our database is built from ra
 
 # 1. Script everything and rebuild from source
 
-From the beginning of the project, we decided to script everything. We wanted the entire work-flow of transforming raw data files into a unified database to be completely scripted and able to be rerun at any point.
+From the beginning of the project, we decided to script everything. We wanted the entire work-flow of transforming raw data files into a unified database to be completely scripted and able to be rerun at any point. When your work-flow is scripted, you can make a small change and then rebuild the database in an instant. Another reason for scripting is that it ensures all the modifications to the data are well documented. This simply isn't possible in Excel. Looking at our code, you can see exactly how we modified the data to arrive at the end product.
 
-I've learnt a lot from watching colleagues like [Ian Wright]() compile [large databases]() from #otherpeoplesdata in Excel. One of the troubles Ian encountered time and time again, was that he would find out sometime down the track that someone had sent him the wrong data, the wrong units, or no longer wanted their data included in a compilation. Each time something like this happened, it would cost Ian a lot of time to modifying his spreadsheet.
-
-When your work-flow is scripted, you can make a small change and then rebuild the database in an instant. Another reason for scripting is that it ensures all the modifications to the data are well documented. This simply isn't possible in Excel. Looking at our code, you can see exactly how we modified the data to arrive at the end product.
-
-The only potential cost of continually rebuilding the database is that the process of rebuilding can take time. Actually, the time taken to make all the transformations and combine all 176 studies is pretty minimal ~9s all-up. Never-the-less, the job of continually rebuilding the database was made a lot quicker through use of [remake](https://github.com/richfitz/remake)[^remake], one of our new R packages. Essentially remake caches built objects (e.g. the transformed data from each study) and only rebuilds each of them if either the data or code generating that particular dataset has changed. So if I change a single value in one of the datasets, remake notices that and rebuilds only that file. So after the first longer run, rebuilding the entire database takes in the range of 1-2s.
+The only potential cost of continually rebuilding the database is that the process of rebuilding can take time. Actually, the time taken to make all the transformations and combine all 176 studies is pretty minimal ~9s all-up. But the job of continually rebuilding the database became a lot quicker once we started using [remake](https://github.com/richfitz/remake)[^remake], one of our new R packages. Remake caches built objects (e.g. the transformed data from each study) and only rebuilds each of them if either the data or code generating that particular object has changed. So after the first longer run, rebuilding the entire database takes in the range of 1-2s.
 
 Another advantage of constantly rebuilding is that we were forced to make our code more robust and potable, so that it would run safely on all the collaborators machines. Recently we took this one step further by setting up some automated builds, using a continuous integration system ([Travis](https://travis-ci.or)) that automatically rebuilds the database on a fresh remote virtual machine [^TravisCI].
 
@@ -29,16 +25,16 @@ Another advantage of constantly rebuilding is that we were forced to make our co
 
 # 2. Establish a data-processing pipeline
 
-If you're on twitter you may be familiar with the hash-tag [#otherpeoplesdata](https://twitter.com/search?q=%23otherpeoplesdata) -- added to tweets venting about the curious challenges of working with other peoples data. (We each have our own ways of preparing a dataset, but often the logic we bring to the problem may cannot be inferred from the spreadsheet alone.) For us, the trick to working with large amounts of #otherpeoplesdata was to establish a solid processing pipeline, and then focus on getting every new study into that pipeline. Once in the pipeline, a common set of operations is applied (Fig XX). So the challenge for each new study was reduced from "transform into final output", to "get it into the pipeline".
-
-The following principles were appplied in establishin this pipeline.
-
+If you're on twitter you may be familiar with the hash-tag [#otherpeoplesdata](https://twitter.com/search?q=%23otherpeoplesdata) -- added to tweets venting about the curious challenges of working with other peoples data. (We each have our own ways of preparing a dataset, but often the logic we bring to the problem may cannot be inferred from the spreadsheet alone.) For us, the trick to working with large amounts of #otherpeoplesdata was to establish a solid processing pipeline, and then focus on getting every new study into that pipeline. Once in the pipeline, a common set of operations is applied (see figure). So the challenge for each new study was reduced from "transform into final output", to "get it into the pipeline".
 
 ![Work flow for building the BAAD. Data from each study is processed in the same way, using a standardised set of input files, resulting in a single database with a common format.](https://raw.githubusercontent.com/dfalster/baad/3c8ace94a913f4d6c914a244021742ab18a4d639/ms/Figure2.png)
 
+
+The following principles were applied in establishing our processing pipeline.
+
 ## Don't modify raw data files
 
-Raw data is holy. A back-of-the-envelope calculation suggests the data we are managing would cost about $17 million to collect afresh (in Australian dollars and pay rates) [^Cost]. We decided early on that we would aim to keep the original files sent to us unchanged, as much as possible. In many cases it was necessary to export an Excel spreadsheet as a csv file, but beyond that, the file should be basically as it was provided. A limited number of actions were allowed on raw data files. These, included (click on links for examples) [incorporating an updated dataset from a contributor](https://github.com/dfalster/baad/commit/7d10aede58080d83d59fe3be5043829b15f0236b), [modifying line endings](https://github.com/dfalster/baad/commit/5bb9044e7e4b63ad2febca986ebf1e45f24cdd0e)[^line_endings], [removing a string of trailing empty columns](https://github.com/dfalster/baad/commit/ec82e83d1b50f4e6bc2df2a780d2bb1684530652), [correcting trvial spelling mistakes](https://github.com/dfalster/baad/commit/f284744d1e0562d2ec92eea898b7195cc6de1814), [removing special characters causing R to crash](https://github.com/dfalster/baad/commit/d22bc1ee1db3870a7e281de22862eaa1ced4ddd1), [making column names unique](https://github.com/dfalster/baad/commit/4c83c70eb965bfd9c3b7c30f88312e646476836b).
+Raw data is holy. A back-of-the-envelope calculation suggests the data we are managing would cost about $17 million to collect afresh (in Australian dollars and pay rates) [^Cost]. We decided early on that we would aim to keep the original files sent to us unchanged, as much as possible. In many cases it was necessary to export an Excel spreadsheet as a csv file, but beyond that, the file should be basically as it was provided. A limited number of actions were allowed on raw data files. These, included (click on links for examples) [incorporating an updated dataset from a contributor](https://github.com/dfalster/baad/commit/7d10aede58080d83d59fe3be5043829b15f0236b), [modifying line endings](https://github.com/dfalster/baad/commit/5bb9044e7e4b63ad2febca986ebf1e45f24cdd0e)[^line_endings], [removing a string of trailing empty columns](https://github.com/dfalster/baad/commit/ec82e83d1b50f4e6bc2df2a780d2bb1684530652), [correcting trivial spelling mistakes](https://github.com/dfalster/baad/commit/f284744d1e0562d2ec92eea898b7195cc6de1814), [removing special characters causing R to crash](https://github.com/dfalster/baad/commit/d22bc1ee1db3870a7e281de22862eaa1ced4ddd1), [making column names unique](https://github.com/dfalster/baad/commit/4c83c70eb965bfd9c3b7c30f88312e646476836b).
 
 The types of operations that were not allowed include data-transformations and creation of new columns -- these were all handled in our pipeline (see next point).
 
@@ -81,7 +77,7 @@ We established a system for tracking the progress of each dataset entering BAAD
 
 1. Initial screening (basic meta-data extracted from paper).
 2. Primary authors contacted (asking if they wish to contribute).
-3. Initial response from authors (indicating interest or not)
+3. Initial response from authors (indicating interest or not).
 4. Email sent requesting raw data from authors.
 5. Raw data received from authors.
 6. Data processed and entered into BAAD (we filled out as much of information as we could ourselves).
@@ -110,7 +106,7 @@ Alongside git, we used the code-sharing website [Github](www.github.com) to host
 
 # 4. Embrace openness
 
-BAAD is certainly not the first data compilation in my field, but as far we know, it is the first to be entirely open. By entirely open, we mean
+BAAD is far from the first compilation in our field, but as far we know, it is the first to be entirely open. By entirely open, we mean
 
 - the entire work flow is open and transparent,
 - the raw data and meta-data are made available for others to reuse in new and different contexts,
@@ -120,6 +116,9 @@ Anyone can use the compiled data in whatever way they see fit. Our goal was to c
 
 Another concern was that the database would be sustainable. By making the entire process open and scripted, we are effectively allowing ourselves to step away from the project at some point in the future, if that's what we want to do.
 
+# Conclusion
+
+We really hope that the techniques used in building BAAD will help others develop open and transparent compilations of #otherpeoplesdata. On that point, we conclude by thanking all our wonderful co-authors who were willing to put put their data out there for others to use.
 
 # Footnotes
 [^database]:  BAAD is a database in the sense that it is an [organized collection of data](http://en.wikipedia.org/wiki/Database), but we do not use common database tools like SQL or Microsoft Access etc. These are simply not needed and prevent other features like version control.
@@ -128,7 +127,7 @@ Another concern was that the database would be sustainable. By making the entire
 
 [^TravisCI]: You can see the record of the automated [builds here](https://travis-ci.org/dfalster/baad/builds/)
 
-[^Cost]: Let's assume each dataset takes a single person 1 year to collect. If that person was paid at $60k p.a., and we add on-costs and costs of field work, the cost of each dataset might be $100k. The cost of the entire database is then 175 datasets * $100k per dataset = $17mill.
+[^Cost]: Let's assume each dataset takes a single person 1 year to collect. If that person was paid at $60k p.a., and we add on-costs and costs of field work, the cost of each dataset might be $100k. The cost of the entire database is then 175 datasets * $100k per dataset = $17 million.
 
 [^line_endings]: something ....
 
