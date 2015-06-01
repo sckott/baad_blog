@@ -50,10 +50,11 @@ In the early stages of our project, we encoded a lot of the changes we wanted to
 		...
 		raw$leaf.mass  <-  raw$Wtl.g + raw$Wbl.g
 		raw$m.st       <-  raw$Wts.g + raw$Wbs.g
-		new[[i]]   <-  cbind(dataset=names[i], species=raw$SpecCode, raw[,c(5:8, 14:ncol(raw))], latitude=30.31667, longitude=130.4333, location="Ohkou River, Yakushima Island, Kyushu, Japan", reference="Kohyama T (1987) Significance of architecture and allometry in saplings. Functional Ecology 1:399–404.", growingCondition="FW", vegetation="TempRf", stringsAsFactors=FALSE)
+		new[[i]]   <-  cbind(dataset=names[i], species=raw$SpecCode, raw[,c(5:8, 14:ncol(raw))], latitude=30.31667, longitude=130.4333, location="Ohkou River, Yakushima Island, Kyushu, Japan", reference="Kohyama T (1987) Significance of architecture and allometry in saplings. Functional Ecology 1:399-404.", growingCondition="FW", vegetation="TempRf", stringsAsFactors=FALSE)
 	}
 ```
-The code above shows operations for a single study: loading raw data, making new columns, save the compiled object. The **problem** with this code is that it mixes in a bunch of useful data with our R code. We had not yet identified a common pipeline for processing data. Eventually we moved all this extra data into their own *.csv* files and treated them as we should, as data. 
+The code above shows operations for a single study: loading raw data, making new columns, save the compiled object. The **problem** with this code is that it mixes in a bunch of useful data with our R code. We had not yet identified a common pipeline for processing data. Eventually we moved all this extra data into their own *.csv* files and treated them as we should, as data. We then use functions
+to modify the raw data, using the [new files as input](http://nicercode.github.io/blog/2013-07-09-modifying-data-with-lookup-tables/).
 
 Each study in the database was therefore required to have a standard set of files to enter the data-processing pipeline:
 
