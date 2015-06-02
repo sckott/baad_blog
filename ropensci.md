@@ -17,13 +17,15 @@ From the beginning of the project, we decided to script everything. We wanted th
 
 The only potential cost of continually rebuilding the database is that the process of rebuilding can take time. In the end, the time taken to make all the transformations and combine all 176 studies was pretty minimal -- ~9 seconds all-up. But the job of continually rebuilding the database became a lot quicker once we started using [remake](https://github.com/richfitz/remake) <sup>[^2](#remake)</sup>. Remake caches built objects (e.g. the transformed data from each study) and only rebuilds each of them if either the data or code generating that particular object has changed. So after the first longer run, rebuilding the entire database takes in the range of 1--2 seconds.
 
-Another advantage of constantly rebuilding is that we were forced to make our code more robust and potable, so that it would run safely on all the collaborators machines. Recently we took this one step further by setting up some automated builds, using a continuous integration system ([Travis](https://travis-ci.or)) that automatically rebuilds the database on a fresh remote virtual machine <sup>[^3](#TravisCI)</sup>. This approach allows us to detect undocumented dependencies or changes to dependencies that would prevent others rebuilding the database.
+Another advantage of constantly rebuilding is that we were forced to make our code more robust and portable, so that it would run safely on all the collaborators machines. Recently we took this one step further by setting up some automated builds, using a continuous integration system ([Travis](https://travis-ci.or)) that automatically rebuilds the database on a fresh remote virtual machine <sup>[^3](#TravisCI)</sup>. This approach allows us to detect undocumented dependencies or changes to dependencies that would prevent others rebuilding the database.
 
 (The current status of the BAAD is: [![Build Status](https://travis-ci.org/dfalster/baad.svg?branch=master)](https://travis-ci.org/dfalster/baad))
 
 # 2. Establish a data-processing pipeline
 
 The hashtag [#otherpeoplesdata](https://twitter.com/search?q=%23otherpeoplesdata) documents the challenge and frustrations of working with data that were not curated the way you would prefer. (We each have our own ways of preparing a dataset, but often the logic we bring to the problem cannot be inferred from the spreadsheet alone.) For us, the trick to working with large amounts of #otherpeoplesdata was to establish a solid processing pipeline, and then focus on getting every new study into that pipeline. Once in the pipeline, a common set of operations is applied (Figure 1). So the challenge for each new study was reduced from "transform into final output", to "get it into the pipeline".
+
+<!-- > the way you would prefer |  I wonder if people will read this and think, "well, that's just your opionon", maybe say curated correctly/properly/in an appropriate fashion? -->
 
 **Figure 1:** Work flow for building the BAAD. Data from each study is processed in the same way, using a standardised set of input files, resulting in a single database with a common format.
 ![](https://raw.githubusercontent.com/dfalster/baad/3c8ace94a913f4d6c914a244021742ab18a4d639/ms/Figure2.png)
@@ -84,8 +86,8 @@ We established a system for tracking the progress of each dataset entering BAAD
 5. Raw data received from authors.
 6. Data processed and entered into BAAD (we filled out as much of information as we could ourselves).
 7. A review of data, including any queries, sent to authors for error checking.
-8. Data approved (finish).
-9. Data excluded because of issues that arose (no response, not interested, could not locate data, data not suitable etc.)  (finish).
+8. Data approved (finish). <!-- what does "finish mean here?" -->
+9. Data excluded because of issues that arose (no response, not interested, could not locate data, data not suitable etc.)  (finish).<!-- what does "finish mean here?" -->
 
 At each stage we automated as much as possible. We used a script to generate emails in R based on information in our database, and made it as easy as possible for the contributors to fulfil their tasks and get back to us.
 
@@ -95,6 +97,8 @@ The generated reports are useful in two key ways: i) they provide a nice overvie
 
 **Figure 2:** Example plot from report on [Kitazawa1959 dataset](https://github.com/dfalster/baad/wiki/Kitazawa1959), showing how data from this study (red) is displaced from the rest of the dataset (grey). The problem was fixed in this [commit by changing `cm`  to `m` as the unit description in the meatadata](https://github.com/dfalster/baad/commit/220272b79ceb3aa792523b0c66629be0f23d4468), (i.e. we did not change the data itself but the transformation used in the processing pipeline). 
 ![Figure: Example figure showing problematic data](plot.png)
+
+<!-- The x and y axis titles on these panels could be bigger -->
 
 # 3. Use version control (git) to track changes and code sharing website (github) for effective collaboration
 
@@ -108,6 +112,8 @@ Alongside git, we used the code-sharing website [Github](www.github.com) to host
 - allowing others to make changes to their data.
 - releasing compiled versions of the data.
 
+<!-- may want to mention caveat that github may not workable for very large data? -->
+
 # 4. Embrace openness
 
 BAAD is far from the first compilation in our field, but as far we know, it possibly the first to be entirely open. By entirely open, we mean
@@ -118,7 +124,9 @@ BAAD is far from the first compilation in our field, but as far we know, it poss
 
 Anyone can use the compiled data in whatever way they see fit. Our goal was to create a database that many scientists would immediately want to use, and that would therefore get cited.
 
-Another concern was that the database would be sustainable. By making the entire process open and scripted, we are effectively allowing ourselves to step away from the project at some point in the future, if that's what we want to do. Moreover, it allows future researchers who are out on the field collecting more raw data to contribute to the this existing unified database, perhaps providing a standardised way to tabulate data.
+Another concern was that the database would be sustainable. By making the entire process open and scripted, we are effectively allowing ourselves to step away from the project at some point in the future, if that's what we want to do. Moreover, it allows future researchers who are out in the field collecting more raw data to contribute to the this existing unified database, perhaps providing a standardised way to tabulate data.
+
+<!-- unclear in previous sentence if "perhaps providing a standardised way to tabulate data" refers to you all that make BAAD, or the user that contributes data -->
 
 # 5. A living database
 
@@ -128,13 +136,17 @@ We hope that BAAD will continue to grow.  To that end, we have written a very sm
 baad.data:::data("ecology")
 ```
 
-to download the version stored Ecological Archives, or
+<!-- the ":::" i imagine will be confusing to R noobs -->
+
+to download the version stored in Ecological Archives, or
 
 ```r
 baad.data:::data("x.y.z")
 ```
 
-to download an earlier or more recent version (where version numbers will follow the [semantic versioning](http://semver.org) guidelines. The baad.data package caches everything so subsequent calls, even across sessions, are very fast.  This should facilitate greater reproducibility by making it easy to depend on the version used for a particular analysis, and allowing different analyses to use different versions of the database. 
+<!-- checking to make sure this code above is what you want to use here, cause the repo readme uses function `baad_data()` -->
+
+to download an earlier or more recent version (where version numbers will follow the [semantic versioning](http://semver.org) guidelines. The `baad.data` package caches everything so subsequent calls, even across sessions, are very fast.  This should facilitate greater reproducibility by making it easy to depend on the version used for a particular analysis, and allowing different analyses to use different versions of the database. 
 
 # Conclusion
 
@@ -144,7 +156,7 @@ We really hope that the techniques used in building BAAD will help others develo
 
 <a id="database"><sup>^1</sup></a> BAAD is a database in the sense that it is an [organized collection of data](http://en.wikipedia.org/wiki/Database), but we do not use common database tools like SQL or Microsoft Access etc. These are simply not needed and prevent other features like version control.
 
-<a id="remake"><sup>^2</sup></a> The package `remake` was originally called maker and was introduced on [Nov 19 2014](https://github.com/dfalster/baad/tree/82b0b1c832e9fcfd7c1d1e6cf42f7c8b97e5d323), relatively late in development of BAAD. Earlier we experimented we building a package [dataMashR](https://github.com/dfalster/dataMashR) to implement the conversions, but eventually settled on the remake work-flow. DataMashR lives on a working prototype.
+<a id="remake"><sup>^2</sup></a> The package `remake` was originally called maker and was introduced on [Nov 19 2014](https://github.com/dfalster/baad/tree/82b0b1c832e9fcfd7c1d1e6cf42f7c8b97e5d323), relatively late in development of BAAD. Earlier we experimented we building a package [dataMashR](https://github.com/dfalster/dataMashR) to implement the conversions, but eventually settled on the remake work-flow. DataMashR lives on as a working prototype.
 
 <a id="TravisCI"><sup>^3</sup></a>  You can see the record of the automated [builds here](https://travis-ci.org/dfalster/baad/builds/)
 
