@@ -23,9 +23,7 @@ Another advantage of constantly rebuilding is that we were forced to make our co
 
 # 2. Establish a data-processing pipeline
 
-The hashtag [#otherpeoplesdata](https://twitter.com/search?q=%23otherpeoplesdata) documents the challenge and frustrations of working with data that were not curated the way you would prefer. (We each have our own ways of preparing a dataset, but often the logic we bring to the problem cannot be inferred from the spreadsheet alone.) For us, the trick to working with large amounts of #otherpeoplesdata was to establish a solid processing pipeline, and then focus on getting every new study into that pipeline. Once in the pipeline, a common set of operations is applied (Figure 1). So the challenge for each new study was reduced from "transform into final output", to "get it into the pipeline".
-
-<!-- > the way you would prefer |  I wonder if people will read this and think, "well, that's just your opionon", maybe say curated correctly/properly/in an appropriate fashion? -->
+The hashtag [#otherpeoplesdata](https://twitter.com/search?q=%23otherpeoplesdata) documents the challenge and frustrations of working with data that were curated by others. (We each have our own ways of preparing a dataset, but often the logic we bring to the problem cannot be inferred by others from the spreadsheet alone.) For us, the trick to working with large amounts of #otherpeoplesdata was to establish a solid processing pipeline, and then focus on getting every new study into that pipeline. Once in the pipeline, a common set of operations is applied (Figure 1). So the challenge for each new study was reduced from "transform into final output", to "get it into the pipeline".
 
 **Figure 1:** Work flow for building the BAAD. Data from each study is processed in the same way, using a standardised set of input files, resulting in a single database with a common format.
 ![](https://raw.githubusercontent.com/dfalster/baad/3c8ace94a913f4d6c914a244021742ab18a4d639/ms/Figure2.png)
@@ -86,8 +84,8 @@ We established a system for tracking the progress of each dataset entering BAAD
 5. Raw data received from authors.
 6. Data processed and entered into BAAD (we filled out as much of information as we could ourselves).
 7. A review of data, including any queries, sent to authors for error checking.
-8. Data approved (finish). <!-- what does "finish mean here?" -->
-9. Data excluded because of issues that arose (no response, not interested, could not locate data, data not suitable etc.)  (finish).<!-- what does "finish mean here?" -->
+8. Data approved.
+9. Data excluded because of issues that arose (no response, not interested, could not locate data, data not suitable etc.).
 
 At each stage we automated as much as possible. We used a script to generate emails in R based on information in our database, and made it as easy as possible for the contributors to fulfil their tasks and get back to us.
 
@@ -98,11 +96,9 @@ The generated reports are useful in two key ways: i) they provide a nice overvie
 **Figure 2:** Example plot from report on [Kitazawa1959 dataset](https://github.com/dfalster/baad/wiki/Kitazawa1959), showing how data from this study (red) is displaced from the rest of the dataset (grey). The problem was fixed in this [commit by changing `cm`  to `m` as the unit description in the meatadata](https://github.com/dfalster/baad/commit/220272b79ceb3aa792523b0c66629be0f23d4468), (i.e. we did not change the data itself but the transformation used in the processing pipeline). 
 ![Figure: Example figure showing problematic data](plot.png)
 
-<!-- The x and y axis titles on these panels could be bigger -->
-
 # 3. Use version control (git) to track changes and code sharing website (github) for effective collaboration
 
-The BAAD project began in July 2012, in Feb 2013 Rich FitzJohn got involved and introduced us to version control. You can see the structure of our database at that time [here](https://github.com/dfalster/baad/tree/912163bb371e280340dee2bb4cf872a1d7ede81b). We can't recall that much about what happened prior 13 Feb 2013, but since that day, every single change to the BAAD has been recorded. We know who changed what lines of code or data and when. Many people have been extolling the virtues of git for managing computer code (e.g. [Chacon 2009](http://git-scm.com/book)), but others have noted that git is equally good for managing data ([Ram et al 2013](http://doi.org/10.1186/1751-0473-8-7)).
+The BAAD project began in July 2012, in Feb 2013 Rich FitzJohn got involved and introduced us to version control. You can see the structure of our database at that time [here](https://github.com/dfalster/baad/tree/912163bb371e280340dee2bb4cf872a1d7ede81b). We can't recall that much about what happened prior 13 Feb 2013, but since that day, every single change to the BAAD has been recorded. We know who changed what lines of code or data and when. Many people have been extolling the virtues of git for managing computer code (e.g. [Chacon 2009](http://git-scm.com/book)), but others have noted that git is equally good for managing data ([Ram et al 2013](http://doi.org/10.1186/1751-0473-8-7))<sup>[^5](#git_for_data)</sup>.
 
 Alongside git, we used the code-sharing website [Github](www.github.com) to host our git repository. Github facilitates seamless collaboration by:
 
@@ -111,8 +107,6 @@ Alongside git, we used the code-sharing website [Github](www.github.com) to host
 - providing a nice interface for seeing who changed what and when.
 - allowing others to make changes to their data.
 - releasing compiled versions of the data.
-
-<!-- may want to mention caveat that github may not workable for very large data? -->
 
 # 4. Embrace openness
 
@@ -124,28 +118,21 @@ BAAD is far from the first compilation in our field, but as far we know, it poss
 
 Anyone can use the compiled data in whatever way they see fit. Our goal was to create a database that many scientists would immediately want to use, and that would therefore get cited.
 
-Another concern was that the database would be sustainable. By making the entire process open and scripted, we are effectively allowing ourselves to step away from the project at some point in the future, if that's what we want to do. Moreover, it allows future researchers who are out in the field collecting more raw data to contribute to the this existing unified database, perhaps providing a standardised way to tabulate data.
-
-<!-- unclear in previous sentence if "perhaps providing a standardised way to tabulate data" refers to you all that make BAAD, or the user that contributes data -->
+Another concern was that the database would be sustainable. By making the entire process open and scripted, we are effectively allowing ourselves to step away from the project at some point in the future, if that's what we want to do. Moreover, it allows future researchers who are out in the field collecting more raw data to contribute to the this existing unified database. 
 
 # 5. A living database
 
 We hope that BAAD will continue to grow.  To that end, we have written a very small package [baad.data](https://github.com/traitecoevo/baad.data) for accessing data by version in `R`.  After installing the package (instructions [here](https://github.com/traitecoevo/baad.data)), users can run
 
 ```r
-baad.data:::data("ecology")
+library(baad.data)
+x <- baad_data("ecology")
 ```
-
-<!-- the ":::" i imagine will be confusing to R noobs -->
-
 to download the version stored in Ecological Archives, or
 
 ```r
-baad.data:::data("x.y.z")
+x <- baad_data("x.y.z")
 ```
-
-<!-- checking to make sure this code above is what you want to use here, cause the repo readme uses function `baad_data()` -->
-
 to download an earlier or more recent version (where version numbers will follow the [semantic versioning](http://semver.org) guidelines. The `baad.data` package caches everything so subsequent calls, even across sessions, are very fast.  This should facilitate greater reproducibility by making it easy to depend on the version used for a particular analysis, and allowing different analyses to use different versions of the database. 
 
 # Conclusion
@@ -161,3 +148,5 @@ We really hope that the techniques used in building BAAD will help others develo
 <a id="TravisCI"><sup>^3</sup></a>  You can see the record of the automated [builds here](https://travis-ci.org/dfalster/baad/builds/)
 
 <a id="line_endings"><sup>^4</sup></a> Excel makes a mess of line endings on Mac and has done for a long time - see [here](http://nicercode.github.io/blog/2013-04-30-excel-and-line-endings/) for our thoughts and an early solution.
+
+<a id="git_for_data"><sup>^5</sup></a> Provided the data is not too large. [Github works](https://help.github.com/articles/what-is-my-disk-quota/) with files < 100MB and for git repositories < 1GB. Although there are [strategies for larger sizes](https://help.github.com/articles/what-is-my-disk-quota/).  
